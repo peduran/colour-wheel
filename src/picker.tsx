@@ -1,12 +1,16 @@
 import React from "react";
-
+import { Option } from "space-lift";
 interface Location {
   x: number;
   y: number;
 }
 export default () => {
   const ref = React.useRef<HTMLCanvasElement>(null);
-  const [locations, updateLocations] = React.useState<Location[]>([]);
+  const [locations, updateLocations] = usePersistentState<Location[]>(
+    [],
+    "locs"
+  );
+
   React.useEffect(() => {
     const canvas = ref.current;
     const ctx = canvas!.getContext("2d")!;
@@ -53,3 +57,20 @@ function draw(ctx: CanvasRenderingContext2D, location: Location) {
   ctx.fill(HOOK_PATH);
   ctx.restore();
 }
+
+const usePersistentState = <T extends any>(
+  init: T,
+  key: string
+): [T, (x: T) => void] => {
+  const [rState, updateRState] = React.useState<T>(
+    Option(localStorage.getItem(key)).fold(
+      () => init,
+      d => JSON.parse(d)
+    )
+  );
+
+  React.useEffect(() => 
+    localStorage.setItem(key, JSON.stringify(rState)))
+
+  return [rState, updateRState];
+};
