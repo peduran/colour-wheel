@@ -1,20 +1,38 @@
 import React from "react";
-import { None, Option } from "space-lift";
+
+interface Location {
+  x: number;
+  y: number;
+}
 export default () => {
   const ref = React.useRef<HTMLCanvasElement>(null);
-  console.log("ref", ref);
+  const [locations, updateLocations] = React.useState<Location[]>([]);
+  React.useEffect(() => {
+    const canvas = ref.current;
+    const ctx = canvas!.getContext("2d")!;
+    ctx?.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    locations.forEach(l => draw(ctx, l));
+  });
+
+  const handleCanvasClick = (
+    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+  ) => {
+    const loc = { x: e.clientX, y: e.clientY };
+    draw(ref.current!.getContext("2d")!, loc);
+    updateLocations([...locations, loc]);
+  };
+  const undo = () => updateLocations(locations.slice(0, -1));
+  const handleClear = () => updateLocations([]);
   return (
     <>
-      <p>ggg</p>
+      <button onClick={handleClear}>Clear</button>
+      <button onClick={undo}>undo</button>
       <canvas
         ref={ref}
         className="color-canvas"
         width={window.innerWidth}
         height={window.innerHeight}
-        onClick={e => {
-          draw(ref.current?.getContext("2d"), { x: e.clientX, y: e.clientY });
-          console.log(ref.current);
-        }}
+        onClick={handleCanvasClick}
       ></canvas>
     </>
   );
@@ -25,7 +43,7 @@ const HOOK_SVG =
 const HOOK_PATH = new Path2D(HOOK_SVG);
 const SCALE = 0.3;
 const OFFSET = 80;
-function draw(ctx: any, location: any) {
+function draw(ctx: CanvasRenderingContext2D, location: Location) {
   ctx.fillStyle = "deepskyblue";
   ctx.shadowColor = "dodgerblue";
   ctx.shadowBlur = 20;
