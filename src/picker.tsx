@@ -16,8 +16,7 @@ export default () => {
     imageData.data.set(imageData.data.map(() => getRandomInt(255)));
     ctx.putImageData(imageData, 0,0);
 
-    zoomCtx?.drawImage(canvas1!, 0,0, 1000,1000)
-
+    zoomCtx?.drawImage(canvas1!, 0,0, 1000,1000)    
   }, []);
 
   return (
@@ -34,6 +33,7 @@ export default () => {
         width={1000}
         height={1000}
       ></canvas>
+      <a href={ref2.current?.toDataURL()}>download</a>
     </>
   );
 };
