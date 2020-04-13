@@ -5,9 +5,21 @@ export default () => {
   const smallCanvasRef = React.useRef<HTMLCanvasElement>(null)
   const zoomCanvasRef = React.useRef<HTMLCanvasElement>(null)
   const [url, setUrl] = React.useState<Option<string>>(None)
+  const [colour, setColour] = React.useState<string>("white")
 
   const getRandomInt = (max: number): number =>
     Math.floor(Math.random() * Math.floor(max))
+
+  const setColourOnMouseMove = (context: CanvasRenderingContext2D) => (
+    e: MouseEvent
+  ): void => {
+    const [x, y] = [e.clientX, e.clientY]
+    const [r, g, b, a] = (context.getImageData(x, y, 1, 1)
+      .data as unknown) as Array<number>
+    const rgba = `rgba(${r}, ${g}, ${b}, ${a})`
+    console.log(rgba)
+    return setColour(rgba)
+  }
 
   React.useEffect(() => {
     Option.all([smallCanvasRef.current, zoomCanvasRef.current]).fold(
@@ -28,6 +40,11 @@ export default () => {
             zoomCanvasContext.drawImage(smallCanvas, 0, 0, 1000, 1000)
 
             setUrl(Some(zoomCanvas.toDataURL()))
+
+            zoomCanvas.addEventListener(
+              "mousemove",
+              setColourOnMouseMove(zoomCanvasContext)
+            )
           }
         )
       }
@@ -36,21 +53,25 @@ export default () => {
 
   return (
     <>
-      <canvas
-        ref={smallCanvasRef}
-        className="small-canvas"
-        width={100}
-        height={100}
-      ></canvas>
-      <canvas
-        ref={zoomCanvasRef}
-        className="zoom-canvas"
-        width={1000}
-        height={1000}
-      ></canvas>
-      {url.map(_ => (
-        <a key='1' href={_} download="image.png">download</a>
-      ))}
+      <div style={{ backgroundColor: colour }}>
+        <canvas
+          ref={smallCanvasRef}
+          className="small-canvas"
+          width={100}
+          height={100}
+        ></canvas>
+        <canvas
+          ref={zoomCanvasRef}
+          className="zoom-canvas"
+          width={1000}
+          height={1000}
+        ></canvas>
+        {url.map(_ => (
+          <a key="1" href={_} download="image.png">
+            download
+          </a>
+        ))}
+      </div>
     </>
   )
 }
