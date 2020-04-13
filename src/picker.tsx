@@ -1,39 +1,56 @@
-import React from "react";
+import React from "react"
+import { Option, None, Some } from "space-lift"
+
 export default () => {
-  const ref1 = React.useRef<HTMLCanvasElement>(null);
-  const ref2 = React.useRef<HTMLCanvasElement>(null);
+  const smallCanvasRef = React.useRef<HTMLCanvasElement>(null)
+  const zoomCanvasRef = React.useRef<HTMLCanvasElement>(null)
+  const [url, setUrl] = React.useState<Option<string>>(None)
 
   const getRandomInt = (max: number): number =>
-    Math.floor(Math.random() * Math.floor(max));
+    Math.floor(Math.random() * Math.floor(max))
+
   React.useEffect(() => {
-    const canvas1 = ref1.current;
-    const canvas2 = ref2.current;
-    const ctx = canvas1!.getContext("2d")!;
-    const zoomCtx = canvas2!.getContext("2d")
-    zoomCtx!.imageSmoothingEnabled = false
+    Option.all([smallCanvasRef.current, zoomCanvasRef.current]).fold(
+      () => console.error("empty refs"),
+      ([smallCanvas, zoomCanvas]) => {
+        Option.all([
+          smallCanvas.getContext("2d"),
+          zoomCanvas.getContext("2d")
+        ]).fold(
+          () => console.error("get 2d context fails"),
+          ([smallCanvasContext, zoomCanvasContext]) => {
+            zoomCanvasContext.imageSmoothingEnabled = false
+            const imageData = smallCanvasContext.createImageData(100, 100)
+            const pixels = imageData.data
+            imageData.data.set(pixels.map(() => getRandomInt(255)))
 
-    const imageData = ctx.createImageData(100, 100);
-    imageData.data.set(imageData.data.map(() => getRandomInt(255)));
-    ctx.putImageData(imageData, 0,0);
+            smallCanvasContext.putImageData(imageData, 0, 0)
+            zoomCanvasContext.drawImage(smallCanvas, 0, 0, 1000, 1000)
 
-    zoomCtx?.drawImage(canvas1!, 0,0, 1000,1000)    
-  }, []);
+            setUrl(Some(zoomCanvas.toDataURL()))
+          }
+        )
+      }
+    )
+  }, [])
 
   return (
     <>
       <canvas
-        ref={ref1}
-        className="color-canvas"
+        ref={smallCanvasRef}
+        className="small-canvas"
         width={100}
         height={100}
       ></canvas>
       <canvas
-        ref={ref2}
-        className="color-canvas-2"
+        ref={zoomCanvasRef}
+        className="zoom-canvas"
         width={1000}
         height={1000}
       ></canvas>
-      <a href={ref2.current?.toDataURL()}>download</a>
+      {url.map(_ => (
+        <a key='1' href={_} download="image.png">download</a>
+      ))}
     </>
-  );
-};
+  )
+}
