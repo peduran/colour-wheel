@@ -1,14 +1,12 @@
 import React from "react"
 import { None, Option } from "space-lift"
-import { OscilatorControl } from "./oscillator-control"
-import useOscillator from "./useOscillatorHook"
+import Oscillator from "./oscillator"
 
 const getRandomInt = (max: number): number =>
   Math.floor(Math.random() * Math.floor(max))
 
 export default () => {
   console.log("rendered")
-  const smallCanvasRef = React.useRef<HTMLCanvasElement>(null)
   const zoomCanvasRef = React.useRef<HTMLCanvasElement>(null)
   const [url, setUrl] = React.useState<Option<string>>(None)
   const [colour, setColour] = React.useState<string>("white")
@@ -62,18 +60,12 @@ export default () => {
     <>
       <div style={{ backgroundColor: colour }}>
         <canvas
-          ref={smallCanvasRef}
-          className="small-canvas"
-          width={100}
-          height={100}
-          style={{ display: "none" }}
-        ></canvas>
-        <canvas
           ref={zoomCanvasRef}
           className="zoom-canvas"
           width={400}
           height={400}
         ></canvas>
+        <Oscillator frequency={frequency}/>
         {frequency}
         {url.map((_) => (
           <a key="1" href={_} download="image.png">
