@@ -19,22 +19,19 @@ export default () => {
   }
 
   React.useEffect(() => {
-    Option.all([smallCanvasRef.current, zoomCanvasRef.current]).fold(
+    Option.all([zoomCanvasRef.current]).fold(
       () => console.error("empty refs"),
-      ([smallCanvas, zoomCanvas]) => {
+      ([zoomCanvas]) => {
         Option.all([
-          smallCanvas.getContext("2d"),
           zoomCanvas.getContext("2d"),
         ]).fold(
           () => console.error("get 2d context fails"),
-          ([smallCanvasContext, zoomCanvasContext]) => {
+          ([zoomCanvasContext]) => {
             zoomCanvasContext.imageSmoothingEnabled = false
-            const imageData = smallCanvasContext.createImageData(100, 100)
+            const imageData = zoomCanvasContext.createImageData(400, 400)
             const pixels = imageData.data
             imageData.data.set(pixels.map(() => getRandomInt(255)))
-
-            smallCanvasContext.putImageData(imageData, 0, 0)
-            zoomCanvasContext.drawImage(smallCanvas, 0, 0, 1000, 1000)
+            zoomCanvasContext.putImageData(imageData, 0, 0)
 
             const handleMouseMove = (e: MouseEvent) => {
               const [x, y] = [e.clientX, e.clientY]
@@ -74,8 +71,8 @@ export default () => {
         <canvas
           ref={zoomCanvasRef}
           className="zoom-canvas"
-          width={1000}
-          height={1000}
+          width={400}
+          height={400}
         ></canvas>
         {frequency}
         {url.map((_) => (
