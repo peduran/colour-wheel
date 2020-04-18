@@ -1,7 +1,7 @@
 import React from "react"
-import { Option, None, Some } from "space-lift"
+import { None, Option } from "space-lift"
+import { OscilatorControl } from "./oscillator-control"
 import useOscillator from "./useOscillatorHook"
-import { inflateRaw } from "zlib"
 
 const getRandomInt = (max: number): number =>
   Math.floor(Math.random() * Math.floor(max))
@@ -12,28 +12,10 @@ export default () => {
   const zoomCanvasRef = React.useRef<HTMLCanvasElement>(null)
   const [url, setUrl] = React.useState<Option<string>>(None)
   const [colour, setColour] = React.useState<string>("white")
-  const [oscillator] = useOscillator()
+  const [frequency, setFrquency] = React.useState<number>(450)
 
-  const handleMouseMove  = (
-    e: React.MouseEvent
-  ): void => {
-    const [x, y] = [e.clientX, e.clientY]
-    const [r, g, b, a] = (zoomCanvasRef.current?.getContext('2d')!.getImageData(x, y, 1, 1)
-      .data as unknown) as Array<number>
 
-    const setColourOnMouseMove = () => {
-      const rgba = `rgba(${r}, ${g}, ${b}, ${a})`
-      setColour(rgba)
-    }
-
-    const setOscilltorOnMouseMove = () => {
-      console.log(r + g + b + a)
-      oscillator.frequency.value = r +g +b +a 
-    
-    }
-
-    setColourOnMouseMove()
-    setOscilltorOnMouseMove()
+  const test = (e: React.MouseEvent<HTMLCanvasElement>) => {
   }
 
   React.useEffect(() => {
@@ -53,7 +35,27 @@ export default () => {
 
             smallCanvasContext.putImageData(imageData, 0, 0)
             zoomCanvasContext.drawImage(smallCanvas, 0, 0, 1000, 1000)
+
+            const handleMouseMove = (e: MouseEvent) => {
+              const [x, y] = [e.clientX, e.clientY]
+              const [r, g, b, a] = (zoomCanvasContext.getImageData(x, y, 1, 1)
+                .data as unknown) as Array<number>
+
+              const handleUpdateColours = () => {
+                const rgba = `rgba(${r}, ${g}, ${b}, ${a})`
+                setColour(rgba)
+              }
+
+              const handleUpdateFrequency = () => {
+                setFrquency(r + b + g + a)
+              }
+
+              handleUpdateColours()
+              handleUpdateFrequency()
+            }
+              zoomCanvas.addEventListener('mousemove', handleMouseMove)
           }
+
         )
       }
     )
@@ -67,38 +69,21 @@ export default () => {
           className="small-canvas"
           width={100}
           height={100}
-          style={{display:'none'}}
+          style={{ display: "none" }}
         ></canvas>
         <canvas
           ref={zoomCanvasRef}
           className="zoom-canvas"
           width={1000}
           height={1000}
-          onMouseMove={handleMouseMove}
         ></canvas>
-        <OscilatorControl oscillator={oscillator}/>
+        {frequency}
         {url.map((_) => (
           <a key="1" href={_} download="image.png">
             download
           </a>
         ))}
       </div>
-    </>
-  )
-}
-
-interface OscilatorControlProps {
-  oscillator: OscillatorNode
-}
-const OscilatorControl = ({oscillator}: OscilatorControlProps) => {
-  return (
-    <>
-      <button onClick={() => oscillator.stop()}>stop</button>
-      <button onClick={() => oscillator.start()}>start</button>
-      <input
-        value={oscillator.frequency.value}
-        onChange={(e) => { oscillator.frequency.value = Number(e.target.value)}}
-      />
     </>
   )
 }

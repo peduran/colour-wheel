@@ -1,20 +1,22 @@
 import React, { useContext, useEffect, useRef } from "react"
+import { context } from "./context"
 
-const audioContext = new window.AudioContext()
 
-type UseOscillator = [OscillatorNode]
+type UseOscillator = []
+// type UseOscillator = [OscillatorNode]
  
  
 const useOscillator = (): UseOscillator =>  {
-    const oscillator = useRef<OscillatorNode>()
+  const {audioContext} = useContext(context)
     useEffect(()=> {
-        oscillator.current = audioContext.createOscillator()
-        oscillator.current.connect(audioContext.destination)
-        oscillator.current.start()
-        return () => oscillator.current?.stop() 
+        const oscillator= audioContext.createOscillator()
+        oscillator.connect(audioContext.destination)
+        oscillator.start()
+        return () => oscillator.stop() 
     })
 
-    return [oscillator]
+    // return [oscillator]
+    return []
 }
 
 export default useOscillator
