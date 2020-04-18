@@ -1,5 +1,5 @@
 import React from "react"
-import { None, Option } from "space-lift"
+import { None, Option, Some } from "space-lift"
 import Oscillator from "./oscillator"
 
 const getRandomInt = (max: number): number =>
@@ -12,17 +12,11 @@ export default () => {
   const [colour, setColour] = React.useState<string>("white")
   const [frequency, setFrquency] = React.useState<number>(450)
 
-
-  const test = (e: React.MouseEvent<HTMLCanvasElement>) => {
-  }
-
   React.useEffect(() => {
     Option.all([zoomCanvasRef.current]).fold(
       () => console.error("empty refs"),
       ([zoomCanvas]) => {
-        Option.all([
-          zoomCanvas.getContext("2d"),
-        ]).fold(
+        Option.all([zoomCanvas.getContext("2d")]).fold(
           () => console.error("get 2d context fails"),
           ([zoomCanvasContext]) => {
             zoomCanvasContext.imageSmoothingEnabled = false
@@ -30,6 +24,7 @@ export default () => {
             const pixels = imageData.data
             imageData.data.set(pixels.map(() => getRandomInt(255)))
             zoomCanvasContext.putImageData(imageData, 0, 0)
+            setUrl(Some(zoomCanvas.toDataURL()))
 
             const handleMouseMove = (e: MouseEvent) => {
               const [x, y] = [e.clientX, e.clientY]
@@ -48,9 +43,8 @@ export default () => {
               handleUpdateColours()
               handleUpdateFrequency()
             }
-              zoomCanvas.addEventListener('mousemove', handleMouseMove)
+            zoomCanvas.addEventListener("mousemove", handleMouseMove)
           }
-
         )
       }
     )

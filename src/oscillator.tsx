@@ -1,32 +1,17 @@
-import React, { useState, useEffect, useContext } from "react"
-import { context } from "./context"
+import React from "react"
+import useOscillator from "./useOscillatorHook"
 
 interface Props {
   frequency: number
 }
 export default ({ frequency }: Props) => {
-  const [oscillator, updateOscillator] = useState<OscillatorNode | undefined>(
-    undefined
+  const { frequency: freqFromHook, start, stop } = useOscillator(frequency)
+  return (
+    <ul>
+      <li>{freqFromHook} From hook</li>
+      <li>{frequency} From prop</li>
+      <li> <button onClick={stop}>stop</button></li>
+      <li> <button onClick={start}>start</button></li>
+    </ul>
   )
-  const { audioContext } = useContext(context)
-
-  useEffect(() => {
-    const oscillator = audioContext.createOscillator()
-    oscillator.frequency.value = frequency
-    updateOscillator(oscillator)
-    oscillator.connect(audioContext.destination)
-    oscillator.start()
-    return () => {
-      oscillator.stop()
-      oscillator.disconnect()
-    }
-  }, [])
-
-  useEffect(() => {
-    if (oscillator) {
-      oscillator.frequency.value = frequency
-    }
-  }, [frequency])
-
-  return null
 }
