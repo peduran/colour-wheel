@@ -59,7 +59,7 @@ export default () => {
           width={400}
           height={400}
         ></canvas>
-        <Oscillator frequency={frequency}/>
+        <Oscillator frequency={frequency} updateFrequency={setFrquency}/>
         {frequency}
         {url.map((_) => (
           <a key="1" href={_} download="image.png">
