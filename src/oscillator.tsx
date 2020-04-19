@@ -1,5 +1,5 @@
 import React from "react"
-import useOscillator from "./useOscillatorHook"
+import useOscillator from "use-oscillator"
 
 interface Props {
   frequency: number
