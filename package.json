@@ -16,7 +16,7 @@
     "react-scripts": "3.4.1",
     "space-lift": "^0.8.7",
     "typescript": "~3.7.2",
-    "use-oscillator": "^0.0.2"
+    "use-oscillator": "^0.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
